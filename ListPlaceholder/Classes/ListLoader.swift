@@ -26,8 +26,15 @@ import UIKit
 
 @objc extension UIView
 {
-    public func showLoader(){
+    public func showLoader(customGradientColor: [UIColor]? = nil){
         var coverColor: UIColor?
+        let gradientColors = customGradientColor ?? [
+            .backgroundFadedGrey(),
+            .gradientFirstStop(),
+            .gradientSecondStop(),
+            .gradientFirstStop(),
+            .backgroundFadedGrey()
+        ]
         
         // cover image with current backgroundColor if its color is not clearColor
         if let backgroundColor = backgroundColor, backgroundColor != .clear {
@@ -46,11 +53,11 @@ import UIKit
             
         self.isUserInteractionEnabled = false
         if self is UITableView{
-            ListLoader.addLoaderTo(self as! UITableView, coverColor: coverColor!)
+            ListLoader.addLoaderTo(self as! UITableView, coverColor: coverColor!, gradientColors: gradientColors)
         }else if self is UICollectionView{
-            ListLoader.addLoaderTo(self as! UICollectionView, coverColor: coverColor!)
+            ListLoader.addLoaderTo(self as! UICollectionView, coverColor: coverColor!, gradientColors: gradientColors)
         }else{
-            ListLoader.addLoaderToViews([self], coverColor: coverColor!)
+            ListLoader.addLoaderToViews([self], coverColor: coverColor!, gradientColors: gradientColors)
         }
     }
     
@@ -132,10 +139,10 @@ extension CGFloat
 
 @objc open class ListLoader: NSObject
 {
-    static func addLoaderToViews(_ views : [UIView], coverColor: UIColor)
+    static func addLoaderToViews(_ views : [UIView], coverColor: UIColor, gradientColors: [UIColor])
     {
         CATransaction.begin()
-        views.forEach { $0.ld_addLoader(coverColor: coverColor) }
+        views.forEach { $0.ld_addLoader(coverColor: coverColor, gradientColors: gradientColors) }
         CATransaction.commit()
     }
     
@@ -146,9 +153,9 @@ extension CGFloat
         CATransaction.commit()
     }
     
-    public static func addLoaderTo(_ list : ListLoadable, coverColor: UIColor )
+    public static func addLoaderTo(_ list : ListLoadable, coverColor: UIColor, gradientColors: [UIColor])
     {
-        self.addLoaderToViews(list.ld_visibleContentViews(), coverColor: coverColor)
+        self.addLoaderToViews(list.ld_visibleContentViews(), coverColor: coverColor, gradientColors: gradientColors)
     }
     
     
@@ -240,13 +247,13 @@ var gradientFirstStop           = 0.1
         return objc_setAssociatedObject(self, &gradientHandle, aLayer, .OBJC_ASSOCIATION_RETAIN)
     }
     
-    fileprivate func ld_addLoader(coverColor: UIColor)
+    fileprivate func ld_addLoader(coverColor: UIColor, gradientColors: [UIColor])
     {
         let gradient: CAGradientLayer = CAGradientLayer()
         gradient.frame = CGRect(x: 0, y: 0, width: self.bounds.size.width , height: self.bounds.size.height)
         self.layer.insertSublayer(gradient, at:0)
         
-        self.configureAndAddAnimationToGradient(gradient)
+        self.configureAndAddAnimationToGradient(gradient, colors: gradientColors)
         self.addCutoutView(coverColor: coverColor)
     }
     
@@ -262,18 +269,12 @@ var gradientFirstStop           = 0.1
     }
     
     
-    func configureAndAddAnimationToGradient(_ gradient : CAGradientLayer)
+    func configureAndAddAnimationToGradient(_ gradient : CAGradientLayer, colors: [UIColor])
     {
         gradient.startPoint = CGPoint(x: -1.0 + CGFloat(gradientWidth), y: 0)
         gradient.endPoint = CGPoint(x: 1.0 + CGFloat(gradientWidth), y: 0)
         
-        gradient.colors = [
-            UIColor.backgroundFadedGrey().cgColor,
-            UIColor.gradientFirstStop().cgColor,
-            UIColor.gradientSecondStop().cgColor,
-            UIColor.gradientFirstStop().cgColor,
-            UIColor.backgroundFadedGrey().cgColor
-        ]
+        gradient.colors = colors.map {$0.cgColor}
         
         let startLocations = [NSNumber(value: gradient.startPoint.x.doubleValue() as Double),NSNumber(value: gradient.startPoint.x.doubleValue() as Double),NSNumber(value: 0 as Double),NSNumber(value: gradientWidth as Double),NSNumber(value: 1 + gradientWidth as Double)]
         

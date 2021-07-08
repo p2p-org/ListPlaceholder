@@ -21,8 +21,16 @@ class DarkLightViewController: UIViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        view.backgroundColor = .white.onDarkMode(.red)
-        stackView.showLoader()
+        view.backgroundColor = .white.onDarkMode(.black)
+        
+        let textBlack = UIColor.black.onDarkMode(.white)
+        stackView.showLoader(customGradientColor: [
+            .gray.withAlphaComponent(0.12),
+            .gray.withAlphaComponent(0.24),
+            .gray.withAlphaComponent(0.48),
+            .gray.withAlphaComponent(0.24),
+            .gray.withAlphaComponent(0.12)
+        ])
     }
     
     @IBAction func changeModeButtonDidTouch(_ sender: Any) {
