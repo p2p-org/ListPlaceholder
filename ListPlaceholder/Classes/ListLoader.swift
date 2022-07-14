@@ -26,7 +26,7 @@ import UIKit
 
 @objc extension UIView
 {
-    public func showLoader(){
+    open func showLoader(){
         var coverColor: UIColor?
         
         // cover image with current backgroundColor if its color is not clearColor
@@ -54,7 +54,7 @@ import UIKit
         }
     }
     
-    public func hideLoader(){
+    open func hideLoader(){
         self.isUserInteractionEnabled = true
         if self is UITableView{
             ListLoader.removeLoaderFrom(self as! UITableView)
