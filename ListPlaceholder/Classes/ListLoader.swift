@@ -26,7 +26,7 @@ import UIKit
 
 @objc extension UIView
 {
-    public func showLoader(customGradientColor: [UIColor]? = nil){
+    open func showLoader(customGradientColor: [UIColor]? = nil){
         var coverColor: UIColor?
         let gradientColors = customGradientColor ?? [
             .backgroundFadedGrey(),
@@ -61,7 +61,7 @@ import UIKit
         }
     }
     
-    public func hideLoader(){
+    open func hideLoader(){
         self.isUserInteractionEnabled = true
         if self is UITableView{
             ListLoader.removeLoaderFrom(self as! UITableView)
